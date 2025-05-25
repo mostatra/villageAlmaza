@@ -2,39 +2,42 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>QR Scanner - Almaza</title>
   <script src="https://unpkg.com/html5-qrcode"></script>
   <style>
     body {
       margin: 0;
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-       background: url("Untitled.jpg") no-repeat center center fixed;
+      background: url("Untitled.jpg") no-repeat center center fixed;
       background-size: cover;
       background-position: center;
       background-repeat: no-repeat;
-      height: 100vh;
+      min-height: 100vh;
       color: white;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: flex-start;
-      padding-top: 30px;
+      padding: 20px;
       text-shadow: 1px 1px 3px black;
+      box-sizing: border-box;
     }
 
     #logo {
-      width: 150px;
-      margin-bottom: 10px;
+      width: 120px;
+      margin-bottom: 15px;
     }
 
     h1 {
-      font-size: 26px;
+      font-size: 22px;
       margin-bottom: 20px;
       text-align: center;
     }
 
     #reader {
-      width: 320px;
+      width: 100%;
+      max-width: 340px;
       padding: 10px;
       background-color: rgba(0, 0, 0, 0.4);
       border-radius: 10px;
@@ -42,18 +45,23 @@
 
     #buttons {
       margin-top: 20px;
+      display: flex;
+      gap: 15px;
+      flex-wrap: wrap;
+      justify-content: center;
     }
 
     .btn {
-      padding: 12px 25px;
-      font-size: 20px;
-      margin: 10px;
+      padding: 14px 30px;
+      font-size: 18px;
+      margin: 10px 0;
       border: none;
       border-radius: 50px;
       cursor: pointer;
       color: white;
       transition: background-color 0.3s ease, transform 0.2s ease;
-      box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+      box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+      width: 120px;
     }
 
     .btn:hover {
@@ -71,27 +79,31 @@
     #status {
       margin-top: 20px;
       font-weight: bold;
-      background-color: rgba(0, 0, 0, 0.4);
-      padding: 10px 20px;
+      background-color: rgba(0, 0, 0, 0.5);
+      padding: 10px 15px;
       border-radius: 10px;
-      max-width: 80%;
+      max-width: 90%;
+      text-align: center;
+      font-size: 16px;
     }
   </style>
 </head>
 <body>
-  <!-- 👇 لوجو الماظة -->
+  <!-- لوجو الماظة -->
   <img id="logo" src="logo.png" alt="Almaza Bay Logo">
   <h1>Scan QR Code – Almaza Bay Village</h1>
 
   <div id="reader"></div>
+
   <div id="buttons" style="display: none;">
     <button class="btn in-btn" onclick="sendType('IN')">IN</button>
     <button class="btn out-btn" onclick="sendType('OUT')">OUT</button>
   </div>
+
   <div id="status"></div>
 
   <script>
-    const cloudSheetURL = "https://script.google.com/macros/s/AKfycbxSVSXLHM9ar4Oz55U-B26j17CQTUSEOP2iZVL8QyxxfeC86dv2_aH0wSPtK-U2E6n4mg/exec"; // 🟡 استبدله برابطك
+    const cloudSheetURL = "https://script.google.com/macros/s/AKfycbxSVSXLHM9ar4Oz55U-B26j17CQTUSEOP2iZVL8QyxxfeC86dv2_aH0wSPtK-U2E6n4mg/exec";
     let lastQRData = "";
     let html5QrCode;
 
@@ -103,10 +115,10 @@
         qrCodeMessage => {
           lastQRData = qrCodeMessage;
           html5QrCode.stop().then(() => {
-            document.getElementById("buttons").style.display = "block";
+            document.getElementById("buttons").style.display = "flex";
           });
         },
-        errorMessage => {}
+        errorMessage => { }
       ).catch(err => {
         document.getElementById("status").innerText = "خطأ في تشغيل الكاميرا: " + err;
       });
