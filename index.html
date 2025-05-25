@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>QR Scanner - Almaza</title>
+  <script src="https://unpkg.com/html5-qrcode"></script>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+       background: url("Untitled.jpg") no-repeat center center fixed;
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      height: 100vh;
+      color: white;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      padding-top: 30px;
+      text-shadow: 1px 1px 3px black;
+    }
+
+    #logo {
+      width: 150px;
+      margin-bottom: 10px;
+    }
+
+    h1 {
+      font-size: 26px;
+      margin-bottom: 20px;
+      text-align: center;
+    }
+
+    #reader {
+      width: 320px;
+      padding: 10px;
+      background-color: rgba(0, 0, 0, 0.4);
+      border-radius: 10px;
+    }
+
+    #buttons {
+      margin-top: 20px;
+    }
+
+    .btn {
+      padding: 12px 25px;
+      font-size: 20px;
+      margin: 10px;
+      border: none;
+      border-radius: 50px;
+      cursor: pointer;
+      color: white;
+      transition: background-color 0.3s ease, transform 0.2s ease;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    }
+
+    .btn:hover {
+      transform: scale(1.05);
+    }
+
+    .in-btn {
+      background-color: #28a745;
+    }
+
+    .out-btn {
+      background-color: #dc3545;
+    }
+
+    #status {
+      margin-top: 20px;
+      font-weight: bold;
+      background-color: rgba(0, 0, 0, 0.4);
+      padding: 10px 20px;
+      border-radius: 10px;
+      max-width: 80%;
+    }
+  </style>
+</head>
+<body>
+  <!-- 👇 لوجو الماظة -->
+  <img id="logo" src="logo.png" alt="Almaza Bay Logo">
+  <h1>Scan QR Code – Almaza Bay Village</h1>
+
+  <div id="reader"></div>
+  <div id="buttons" style="display: none;">
+    <button class="btn in-btn" onclick="sendType('IN')">IN</button>
+    <button class="btn out-btn" onclick="sendType('OUT')">OUT</button>
+  </div>
+  <div id="status"></div>
+
+  <script>
+    const cloudSheetURL = "https://script.google.com/macros/s/AKfycbxSVSXLHM9ar4Oz55U-B26j17CQTUSEOP2iZVL8QyxxfeC86dv2_aH0wSPtK-U2E6n4mg/exec"; // 🟡 استبدله برابطك
+    let lastQRData = "";
+    let html5QrCode;
+
+    function startScanner() {
+      html5QrCode = new Html5Qrcode("reader");
+      html5QrCode.start(
+        { facingMode: "environment" },
+        { fps: 10, qrbox: 250 },
+        qrCodeMessage => {
+          lastQRData = qrCodeMessage;
+          html5QrCode.stop().then(() => {
+            document.getElementById("buttons").style.display = "block";
+          });
+        },
+        errorMessage => {}
+      ).catch(err => {
+        document.getElementById("status").innerText = "خطأ في تشغيل الكاميرا: " + err;
+      });
+    }
+
+    function sendType(type) {
+      if (!lastQRData) return;
+
+      fetch(cloudSheetURL + "?data=" + encodeURIComponent(lastQRData) + "&type=" + type)
+        .then(response => response.text())
+        .then(result => {
+          document.getElementById("status").innerText = "✅ تم الإرسال كـ " + type + ": " + lastQRData;
+        })
+        .catch(error => {
+          document.getElementById("status").innerText = "❌ خطأ في الإرسال: " + error;
+        });
+
+      document.getElementById("buttons").style.display = "none";
+      lastQRData = "";
+      startScanner();
+    }
+
+    window.onload = () => {
+      startScanner();
+    };
+  </script>
+</body>
+</html>
